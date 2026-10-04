@@ -1,0 +1,44 @@
+{
+  "name": "cv-writer",
+  "version": "1.0.0",
+  "description": "Experimental CV writer from elicitation to CV creation.",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --project unit --project integration",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:live": "CV_WRITER_LIVE=1 vitest run --project live"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imranson/cv-writer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/imranson/cv-writer/issues"
+  },
+  "homepage": "https://github.com/imranson/cv-writer#readme",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.289",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.0",
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "type": "module",
+  "private": true,
+  "bin": {
+    "cv-writer": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
