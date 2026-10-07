@@ -1,0 +1,36 @@
+{
+  "name": "cv-writer",
+  "version": "3.0.0",
+  "description": "Web app that interviews you, writes a CV for a job listing with a writer and a critic agent, and exports a styled PDF. Runs on Ollama cloud models.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "npm run build:web && tsx src/server/index.ts",
+    "dev": "tsx watch src/server/index.ts",
+    "build:web": "vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p web/tsconfig.json",
+    "test": "vitest run --project unit --project integration",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:live": "CV_WRITER_LIVE=1 vitest run --project live"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imranson/cv-writer.git"
+  },
+  "license": "ISC",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "ollama": "^0.6.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  }
+}

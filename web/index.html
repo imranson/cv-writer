@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CV Writer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231f3a5f'/><path d='M9 9h14M9 15h14M9 21h9' stroke='white' stroke-width='2.4' stroke-linecap='round'/></svg>" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <section class="chat" aria-label="Conversation with your CV coach">
+        <header class="chat-head">
+          <div class="brand">CV Writer</div>
+          <div class="session-controls">
+            <select id="session-select" aria-label="Conversation"></select>
+            <button id="new-session" class="btn subtle" title="Start a new conversation">New</button>
+          </div>
+        </header>
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <div id="status" class="status" hidden></div>
+        <form id="composer" class="composer">
+          <textarea id="input" rows="3" placeholder="Reply to your coach — paste a job listing or URL any time. Enter to send, Shift+Enter for a new line." aria-label="Message"></textarea>
+          <button id="send" class="btn primary" type="submit">Send</button>
+        </form>
+      </section>
+      <section class="workspace" aria-label="Your CV workspace">
+        <nav class="tabs" role="tablist">
+          <button role="tab" data-tab="preview" class="tab active">CV</button>
+          <button role="tab" data-tab="review" class="tab">Review</button>
+          <button role="tab" data-tab="style" class="tab">Style</button>
+          <button role="tab" data-tab="profile" class="tab">Profile</button>
+          <button role="tab" data-tab="job" class="tab">Job</button>
+          <button role="tab" data-tab="audit" class="tab">History</button>
+        </nav>
+        <div class="toolbar">
+          <label>Job <select id="job-select"></select></label>
+          <label>Version <select id="version-select"></select></label>
+          <span id="version-badge" class="badge"></span>
+          <span class="spacer"></span>
+          <button id="pdf-preview" class="btn subtle">PDF preview</button>
+          <a id="pdf-download" class="btn subtle" href="#">Download PDF</a>
+          <a id="md-download" class="btn subtle" href="#">Markdown</a>
+        </div>
+        <div class="panels">
+          <div class="panel active" data-panel="preview"><iframe id="preview" title="CV preview" class="preview"></iframe></div>
+          <div class="panel" data-panel="review"><div id="review" class="scroll"></div></div>
+          <div class="panel" data-panel="style">
+            <div class="style-layout">
+              <form id="style-form" class="style-form scroll"></form>
+              <iframe id="style-preview" title="CV preview with style" class="preview"></iframe>
+            </div>
+          </div>
+          <div class="panel" data-panel="profile"><div id="profile" class="scroll"></div></div>
+          <div class="panel" data-panel="job"><div id="job" class="scroll"></div></div>
+          <div class="panel" data-panel="audit"><div id="audit" class="scroll"></div></div>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
