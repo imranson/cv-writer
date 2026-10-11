@@ -1,6 +1,6 @@
 ---
 name: achievement-bullets
-description: Writing strong, truthful CV bullets
+description: Writing strong, truthful CV bullets. Load before writing or editing experience bullets
 ---
 - Pattern: strong past-tense verb + what you did + how + measurable result. Present tense only for the current role.
 - Lead each role with the bullets most relevant to the target job; 3–6 bullets per recent role, fewer for older ones.

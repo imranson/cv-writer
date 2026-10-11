@@ -85,7 +85,7 @@ describe('Ollama wire protocol (fake daemon, real client)', () => {
     // tool definitions per agent
     expect(chats[0].tools.map((t) => t.function.name)).toContain('callWriter');
     expect(chats[2].tools.map((t) => t.function.name).sort()).toEqual(
-      ['evalMath', 'readCV', 'readJob', 'searchCVs', 'searchJobs', 'webFetch', 'webSearch'].sort(),
+      ['evalMath', 'loadSkill', 'readCV', 'readJob', 'searchCVs', 'searchJobs', 'webFetch', 'webSearch'].sort(),
     );
 
     // system information on every request, with the context window read from /api/show

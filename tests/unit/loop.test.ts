@@ -26,7 +26,7 @@ const baseOpts = (llm: ScriptedLLM, events: AgentEvent[] = []) => ({
   llm,
   emit: (e: AgentEvent) => events.push(e),
   depth: 0,
-  skills: [{ name: 'tone', content: 'Be kind.', file: '' }],
+  skills: [{ name: 'tone', description: 'Load before replying', content: 'Be kind.', dir: '' }],
   contextWindow: 10_000,
   now: () => new Date('2026-10-11T09:00:00Z'),
   timeZone: 'UTC',
@@ -53,7 +53,8 @@ describe('runAgent', () => {
     expect(req.messages[0].role).toBe('system');
     const system = req.messages[0].content;
     expect(system).toContain('BASE INSTRUCTIONS');
-    expect(system).toContain('### Skill: tone');
+    expect(system).toContain('- tone: Load before replying');
+    expect(system).not.toContain('Be kind.');
     expect(system).toContain('ISO 2026-10-11T09:00:00+00:00');
     expect(system).toMatch(/Context window: \d+ \/ 10,000 tokens used/);
     expect(req.tools.map((t) => t.function.name)).toEqual(['add']);

@@ -1,6 +1,6 @@
 ---
 name: review-rubric
-description: Scoring rubric for CV critiques
+description: Scoring rubric for CV critiques. Load before scoring or critiquing a CV
 ---
 Score out of 10 by weighting:
 - 3 pts Relevance: top third of page 1 makes the case for this job; key requirements are evidenced.

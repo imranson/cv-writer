@@ -4,6 +4,7 @@ import type { ChatMessage, LLM } from '../llm/types.js';
 import { loadSkills } from '../skills/loader.js';
 import { commonTools } from '../tools/common.js';
 import { cvTools, jobTools, profileTools } from '../tools/data.js';
+import { loadSkillTool } from '../tools/skills.js';
 import { defineTool, type Tool, type ToolContext } from '../tools/tool.js';
 import type { WebClient } from '../tools/webClient.js';
 import type { Workspace } from '../storage/workspace.js';
@@ -43,7 +44,7 @@ export class AgentRuntime {
     const profile = profileTools(ws);
     const job = jobTools(ws);
     const cv = cvTools(ws);
-    const common = commonTools(deps.web);
+    const common = [...commonTools(deps.web), loadSkillTool(deps.config.skillsDir)];
     const callWriter = this.callWriterTool();
     const callCritic = this.callCriticTool();
 

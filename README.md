@@ -33,7 +33,7 @@ By default the app talks to the local Ollama daemon (`OLLAMA_HOST=http://127.0.0
 | Writer | no, reports to coordinator | readCV, writeCV, editCV (HTML, CSS and per-CV preferences), searchCVs, readProfile, callCritic |
 | Critic | no, reports to its caller | readCV, readJob, searchCVs, searchJobs |
 
-Every agent also has `evalMath`, `webSearch`, `webFetch`, and sees the current date/time and its own context window usage in its system prompt on every step. `callWriter` attaches the job record to the writer's brief because the writer has no `readJob`. Subagent text never reaches the chat; their tool activity shows up in the activity log.
+Every agent also has `evalMath`, `webSearch`, `webFetch`, `loadSkill`, and sees the current date/time and its own context window usage in its system prompt on every step. `callWriter` attaches the job record to the writer's brief because the writer has no `readJob`. Subagent text never reaches the chat; their tool activity shows up in the activity log.
 
 ## Data
 
@@ -50,7 +50,7 @@ sessions/<chatId>.json           chat sessions, independent of everything else
 
 ## Skills
 
-`skills/coordinator/`, `skills/writer/`, `skills/critic/`: every `*.md` in an agent's directory is appended to that agent's system prompt on each run (optional `name`/`description` frontmatter). Add files to extend an agent without code changes.
+`skills/coordinator/`, `skills/writer/`, `skills/critic/`: each subdirectory of an agent's directory is a skill for that agent, laid out as `skill-name/SKILL.md` plus optional `scripts/`, `references/` and `assets/`. Skills load by progressive disclosure: the system prompt lists only each skill's `name` and `description` (SKILL.md frontmatter); the agent calls `loadSkill` to read the SKILL.md body when a task needs it, and again with a relative `file` path to read a bundled file. Loaded text stays in the agent's history. Write descriptions that say when to load the skill. Add directories to extend an agent without code changes; see `skills/README.md`.
 
 ## Tests
 

@@ -15,7 +15,7 @@ beforeEach(async () => {
 });
 afterEach(() => cleanup());
 
-const COMMON = ['evalMath', 'webSearch', 'webFetch'];
+const COMMON = ['evalMath', 'webSearch', 'webFetch', 'loadSkill'];
 
 describe('AgentRuntime tool sets (as specified)', () => {
   it('gives each agent exactly its tools', () => {
@@ -37,15 +37,25 @@ describe('AgentRuntime tool sets (as specified)', () => {
     expect(await makeRuntime(new ScriptedLLM({}, 131_072), ws, { contextWindow: 4096 }).contextWindow('critic')).toBe(4096);
   });
 
-  it('loads each agent’s own skills into its system prompt', async () => {
+  it('lists only each agent’s own skills in its system prompt, without their bodies', async () => {
     const llm = new ScriptedLLM({ coordinator: () => say('hi'), writer: () => say('w'), critic: () => say('c') });
     const rt = makeRuntime(llm, ws);
     for (const agent of ['coordinator', 'writer', 'critic'] as const) await rt.run(agent, [{ role: 'user', content: 'x' }], { emit: () => {} });
     const system = (agent: string) => llm.requests.find((r) => r.agent === agent)!.messages[0].content;
-    expect(system('coordinator')).toContain('Skill: evidence-interviewing');
-    expect(system('writer')).toContain('Skill: achievement-bullets');
-    expect(system('critic')).toContain('Skill: review-rubric');
-    expect(system('writer')).not.toContain('Skill: review-rubric');
+    expect(system('coordinator')).toContain('- evidence-interviewing:');
+    expect(system('writer')).toContain('- achievement-bullets:');
+    expect(system('critic')).toContain('- review-rubric:');
+    expect(system('writer')).not.toContain('review-rubric');
+    expect(system('critic')).not.toContain('Score out of 10 by weighting');
+  });
+
+  it('loads a skill into the history when the agent asks for it', async () => {
+    const llm = new ScriptedLLM({
+      critic: (req) => (step(req) === 0 ? call('loadSkill', { name: 'review-rubric' }) : say('7/10')),
+    });
+    const history: ChatMessage[] = [{ role: 'user', content: 'review' }];
+    await makeRuntime(llm, ws).run('critic', history, { emit: () => {} });
+    expect(history.find((m) => m.tool_name === 'loadSkill')!.content).toContain('Score out of 10 by weighting');
   });
 });
 

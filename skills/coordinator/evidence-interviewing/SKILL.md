@@ -1,6 +1,6 @@
 ---
 name: evidence-interviewing
-description: Drawing out concrete, quantified evidence from the user
+description: Drawing out concrete, quantified evidence from the user. Load before interviewing them about roles, projects or achievements
 ---
 - Ask about one role or project at a time. Start broad ("What were you responsible for?"), then narrow ("What changed because of your work?").
 - Use STAR prompts: Situation, Task, Action, Result. Always end on the result.
