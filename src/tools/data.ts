@@ -61,12 +61,13 @@ export function profileTools(ws: Workspace) {
       name: 'editProfile',
       description:
         'Apply path-based edits to an existing profile, e.g. [{"op":"append","path":"experience","value":{...}}, ' +
-        '{"op":"set","path":"contact.email","value":"a@b.com"}, {"op":"delete","path":"skills.3"}]. All-or-nothing.',
+        '{"op":"set","path":"contact.email","value":"a@b.com"}, {"op":"delete","path":"skills.3"}]. All-or-nothing. ' +
+        'Returns OK on success; use readProfile to see the result.',
       schema: z.object({ profileId: id('Profile'), operations: jsonOps('Edit operations, applied in order') }),
       run: async ({ profileId, operations }, ctx) => {
-        const saved = await ws.editProfile(profileId, toJsonOps(operations));
+        await ws.editProfile(profileId, toJsonOps(operations));
         ctx.emit({ type: 'data_changed', kind: 'profile', id: profileId });
-        return saved;
+        return 'OK';
       },
     }),
   };
@@ -104,12 +105,14 @@ export function jobTools(ws: Workspace) {
     }),
     editJob: defineTool({
       name: 'editJob',
-      description: 'Apply path-based edits to an existing job, same operation format as editProfile. All-or-nothing.',
+      description:
+        'Apply path-based edits to an existing job, same operation format as editProfile. All-or-nothing. ' +
+        'Returns OK on success; use readJob to see the result.',
       schema: z.object({ jobId: id('Job'), operations: jsonOps('Edit operations, applied in order') }),
       run: async ({ jobId, operations }, ctx) => {
-        const saved = await ws.editJob(jobId, toJsonOps(operations));
+        await ws.editJob(jobId, toJsonOps(operations));
         ctx.emit({ type: 'data_changed', kind: 'job', id: jobId });
-        return saved;
+        return 'OK';
       },
     }),
     searchJobs: defineTool({
@@ -153,7 +156,8 @@ export function cvTools(ws: Workspace) {
       name: 'editCV',
       description:
         'Make targeted changes to an existing CV: exact find/replace edits on the HTML and/or CSS, and path operations ' +
-        '(same format as editProfile) on the per-CV preferences. Read the CV first so "find" matches exactly. All-or-nothing.',
+        '(same format as editProfile) on the per-CV preferences. Read the CV first so "find" matches exactly. All-or-nothing. ' +
+        'Returns OK on success; use readCV to see the result.',
       schema: z.object({
         jobId: id('Job'),
         htmlEdits: jsonish(z.array(textEdit)).optional().describe('Find/replace edits on the HTML'),
@@ -162,13 +166,13 @@ export function cvTools(ws: Workspace) {
       }),
       run: async ({ jobId, htmlEdits, cssEdits, preferenceOps }, ctx) => {
         if (!htmlEdits?.length && !cssEdits?.length && !preferenceOps?.length) throw new Error('No edits given');
-        const cv = await ws.editCv(jobId, {
+        await ws.editCv(jobId, {
           htmlEdits,
           cssEdits,
           preferenceOps: preferenceOps ? toJsonOps(preferenceOps) : undefined,
         });
         ctx.emit({ type: 'data_changed', kind: 'cv', id: jobId });
-        return { ok: true, jobId, htmlChars: cv.html.length, cssChars: cv.css.length, preferences: cv.preferences };
+        return 'OK';
       },
     }),
     searchCVs: defineTool({

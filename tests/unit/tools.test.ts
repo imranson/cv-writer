@@ -87,7 +87,8 @@ describe('profile tools (coordinator)', () => {
       profileId: created.id,
       operations: [{ op: 'append', path: 'skills', value: 'Poetry' }, { op: 'set', path: 'contact.email', value: 'ada@x.com' }],
     });
-    expect(edited.data).toMatchObject({ skills: ['Maths', 'Poetry'], contact: { email: 'ada@x.com' } });
+    expect(edited.output).toBe('OK');
+    expect(await ws.getProfile(created.id)).toMatchObject({ skills: ['Maths', 'Poetry'], contact: { email: 'ada@x.com' } });
     expect((await run(editProfile, { profileId: created.id, operations: [{ op: 'set', path: 'x' }] })).output).toContain('needs a value');
   });
 
@@ -109,7 +110,8 @@ describe('job tools (coordinator, critic)', () => {
       expect.objectContaining({ id: job.id, title: 'Engineer @ Acme', hasCv: false }),
     ]);
     expect((await run(readJob, { jobId: job.id })).data.company).toBe('Acme');
-    expect((await run(editJob, { jobId: job.id, operations: [{ op: 'set', path: 'status', value: 'applied' }] })).data.status).toBe('applied');
+    expect((await run(editJob, { jobId: job.id, operations: [{ op: 'set', path: 'status', value: 'applied' }] })).output).toBe('OK');
+    expect((await ws.getJob(job.id))?.status).toBe('applied');
     expect((await run(searchJobs, { query: 'rust' })).data.results).toEqual([expect.objectContaining({ id: job.id })]);
   });
 });
@@ -124,12 +126,13 @@ describe('CV tools (writer, critic)', () => {
     const read = (await run(readCV, { jobId: 'j1' })).data;
     expect(read).toMatchObject({ exists: true, html: '<h1>Ada</h1><p>Kotlin expert</p>', preferences: { tone: 'warm' } });
     expect(read.css).toContain('@page');
-    await run(editCV, {
+    const edited = await run(editCV, {
       jobId: 'j1',
       htmlEdits: [{ find: 'Kotlin', replace: 'Kotlin and Java' }],
       cssEdits: [{ find: 'size: A4;', replace: 'size: Letter;' }],
       preferenceOps: [{ op: 'set', path: 'pageSize', value: 'Letter' }],
     });
+    expect(edited.output).toBe('OK');
     const after = await ws.getCv('j1');
     expect(after.html).toContain('Kotlin and Java');
     expect(after.css).toContain('size: Letter;');
