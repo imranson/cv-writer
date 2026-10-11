@@ -86,7 +86,7 @@ describe('webFetch tool', () => {
       'https://acme.example/redirect': () => new Response(null, { status: 302, headers: { location: 'http://127.0.0.1:11434/api/tags' } }),
     });
     const web = new OllamaWebClient({ fetch: fetchImpl, lookup: publicLookup });
-    expect((await runTool('webFetch', { url: 'http://localhost:3000/api/profiles' }, web as never)).output).toContain('local address');
+    expect((await runTool('webFetch', { url: 'http://localhost:4817/api/profiles' }, web as never)).output).toContain('local address');
     expect((await runTool('webFetch', { url: 'https://acme.example/redirect' }, web as never)).output).toContain('private network');
     expect((await runTool('webFetch', { url: 'ftp://acme.example/x' }, web as never)).output).toContain('Only http(s)');
   });

@@ -9,7 +9,7 @@ npm install
 npx playwright install chromium   # once, for PDF rendering
 ollama signin                     # once, so the local daemon can serve cloud models
 cp .env.example .env              # optional: model, API key, port
-npm start                         # http://localhost:3000
+npm start                         # http://localhost:4817
 ```
 
 By default the app talks to the local Ollama daemon (`OLLAMA_HOST=http://127.0.0.1:11434`) using `kimi-k2.6:cloud`. To call ollama.com directly instead, set `OLLAMA_HOST=https://ollama.com`, `OLLAMA_API_KEY` and a model name such as `gpt-oss:120b`. Web search needs `OLLAMA_API_KEY`; web fetch falls back to a guarded direct fetch without it.
@@ -23,7 +23,7 @@ By default the app talks to the local Ollama daemon (`OLLAMA_HOST=http://127.0.0
 | `OLLAMA_THINK` | model default | `true`/`false`/`low`/`medium`/`high`; `false` is much faster |
 | `CONTEXT_WINDOW` | read from the model | Context window shown to agents and in the UI |
 | `MAX_AGENT_STEPS` | `30` | Tool-call rounds per agent run |
-| `PORT`, `DATA_DIR`, `SKILLS_DIR` | `3000`, `./data`, `./skills` | Server and storage |
+| `PORT`, `DATA_DIR`, `SKILLS_DIR` | `4817`, `./data`, `./skills` | Server and storage |
 
 ## Agents
 

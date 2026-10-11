@@ -40,7 +40,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, cwd = process.c
   const apiKey = env.OLLAMA_API_KEY?.trim() || undefined;
   const model = env.OLLAMA_MODEL?.trim() || DEFAULT_MODEL;
   return {
-    port: positiveInt(env.PORT, 'PORT') ?? 3000,
+    port: positiveInt(env.PORT, 'PORT') ?? 4817,
     dataDir: path.resolve(cwd, env.DATA_DIR || 'data'),
     skillsDir: path.resolve(cwd, env.SKILLS_DIR || 'skills'),
     ollamaHost: env.OLLAMA_HOST?.trim() || LOCAL_HOST,

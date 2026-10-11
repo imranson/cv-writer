@@ -6,7 +6,7 @@ describe('loadConfig', () => {
   it('has sensible defaults (local daemon, kimi cloud model)', () => {
     const c = loadConfig({}, '/app');
     expect(c).toMatchObject({
-      port: 3000,
+      port: 4817,
       dataDir: path.resolve('/app/data'),
       skillsDir: path.resolve('/app/skills'),
       ollamaHost: 'http://127.0.0.1:11434',
