@@ -88,7 +88,7 @@ function activityGroup(open: boolean): HTMLUListElement {
   return details.querySelector('ul')!;
 }
 
-function addActivity(depth: number, html: string, open: boolean): void {
+function addActivity(depth: number, html: string, open: boolean): HTMLLIElement {
   const ul = activityGroup(open);
   const li = document.createElement('li');
   li.className = `depth-${Math.min(depth, 2)}`;
@@ -97,6 +97,36 @@ function addActivity(depth: number, html: string, open: boolean): void {
   const summary = ul.parentElement!.querySelector('summary')!;
   summary.textContent = `Activity (${ul.children.length})`;
   scrollToBottom();
+  return li;
+}
+
+function formatArgs(args: unknown): string {
+  if (typeof args === 'string') {
+    try {
+      args = JSON.parse(args);
+    } catch {
+      return args as string;
+    }
+  }
+  return JSON.stringify(args ?? {}, null, 2);
+}
+
+/** A tool call row: collapsed to its name, expands to the arguments and the full result. */
+function addToolCall(depth: number, agent: string, name: string, args: unknown, open: boolean): HTMLDetailsElement {
+  const li = addActivity(
+    depth,
+    `<details><summary><span class="agent">${esc(agent)}</span> → ${esc(name)}</summary>` +
+      '<div class="tool-io"><div class="label">Arguments</div><pre class="tool-args"></pre><div class="label">Result</div><pre class="tool-output">Running…</pre></div></details>',
+    open,
+  );
+  li.classList.add('tool');
+  li.querySelector('.tool-args')!.textContent = formatArgs(args);
+  return li.querySelector('details')!;
+}
+
+function showToolResult(details: HTMLDetailsElement, ok: boolean, output: string): void {
+  details.querySelector('.tool-output')!.textContent = output;
+  if (!ok) details.querySelector('summary')!.insertAdjacentHTML('beforeend', ' <span class="fail">✗</span>');
 }
 
 function esc(text: string): string {
@@ -107,14 +137,16 @@ function esc(text: string): string {
 
 function renderHistory(messages: Message[]): void {
   els.messages.innerHTML = '';
+  const pending: HTMLDetailsElement[] = []; // tool results follow their assistant message in call order
   for (const m of messages) {
     if (m.role === 'user') addBubble('user', m.content);
     else if (m.role === 'assistant') {
       if (m.thinking?.trim()) addThinking(m.thinking, false);
       if (m.content.trim()) addBubble('assistant', m.content);
-      for (const call of m.tool_calls ?? []) addActivity(0, `<span class="agent">coordinator</span> → ${esc(call.function.name)}`, false);
-    } else if (m.role === 'tool' && m.content.startsWith('Error:')) {
-      addActivity(0, `<span class="fail">✗ ${esc(m.tool_name ?? '')}: ${esc(m.content.slice(0, 160))}</span>`, false);
+      for (const call of m.tool_calls ?? []) pending.push(addToolCall(0, 'coordinator', call.function.name, call.function.arguments, false));
+    } else if (m.role === 'tool') {
+      const details = pending.shift();
+      if (details) showToolResult(details, !m.content.startsWith('Error:'), m.content);
     }
   }
   if (messages.length === 0) {
@@ -210,6 +242,8 @@ async function sendMessage(text: string): Promise<void> {
   let thought: HTMLDetailsElement | null = null;
   let thoughtBuffer = '';
   let first = true;
+  // Each agent runs its tools one at a time, so at most one call per agent and depth awaits its result.
+  const pendingTools = new Map<string, HTMLDetailsElement>();
 
   // Reasoning stays open while it streams and collapses once the model answers or uses a tool.
   const endThought = () => {
@@ -251,11 +285,15 @@ async function sendMessage(text: string): Promise<void> {
       case 'tool_call':
         endThought();
         bubble = null; // text after tool use goes in a new bubble
-        addActivity(event.depth, `<span class="agent">${esc(event.agent)}</span> → ${esc(event.name)}`, true);
+        pendingTools.set(`${event.depth}:${event.agent}`, addToolCall(event.depth, event.agent, event.name, event.args, true));
         return;
-      case 'tool_result':
-        if (!event.ok) addActivity(event.depth, `<span class="fail">✗ ${esc(event.name)}: ${esc(event.preview.slice(0, 160))}</span>`, true);
+      case 'tool_result': {
+        const key = `${event.depth}:${event.agent}`;
+        const details = pendingTools.get(key);
+        if (details) showToolResult(details, event.ok, event.output);
+        pendingTools.delete(key);
         return;
+      }
       case 'agent_start':
         addActivity(event.depth, `<span class="agent">${esc(event.agent)}</span> started`, true);
         return;
@@ -286,6 +324,7 @@ async function sendMessage(text: string): Promise<void> {
   } finally {
     setRunning(false);
     endThought();
+    for (const details of pendingTools.values()) showToolResult(details, false, 'No result: the run ended first.');
     els.messages.querySelectorAll('details.activity').forEach((d) => ((d as HTMLDetailsElement).open = false));
     await refreshSessions();
     await refreshWorkspace();

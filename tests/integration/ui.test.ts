@@ -62,6 +62,22 @@ describe('web UI (real browser, scripted model)', () => {
     expect(await page.locator('.bubble.assistant', { hasText: 'WRITER REPORT' }).count()).toBe(0);
   });
 
+  it('shows each tool call collapsed, expanding to its arguments and full result', async () => {
+    const rows = page.locator('.activity li.tool details');
+    expect(await rows.count()).toBeGreaterThan(0);
+    expect(await rows.evaluateAll((els) => els.some((el) => (el as HTMLDetailsElement).open))).toBe(false);
+
+    const readCv = rows.filter({ has: page.locator('summary', { hasText: 'critic → readCV' }) });
+    expect(await readCv.locator('.tool-args').textContent()).toMatch(/"jobId": "job-/);
+    const output = (await readCv.locator('.tool-output').textContent())!;
+    expect(output.length).toBeGreaterThan(300); // not truncated to a preview
+    expect(output).toContain('Ada Lovelace');
+
+    await page.locator('details.activity').evaluateAll((els) => els.forEach((el) => ((el as HTMLDetailsElement).open = true)));
+    await readCv.locator('summary').click();
+    await expect.poll(() => readCv.locator('.tool-output').isVisible()).toBe(true);
+  });
+
   it('shows the coordinator’s thinking, collapsed once it moves on, but never a subagent’s', async () => {
     const thoughts = page.locator('details.thinking');
     expect(await thoughts.count()).toBe(4); // one per coordinator step
@@ -119,6 +135,9 @@ describe('web UI (real browser, scripted model)', () => {
     await page.locator('.bubble.user', { hasText: 'Hi, I am Ada' }).waitFor();
     expect(await page.locator('.bubble.assistant', { hasText: 'ready in the preview panel' }).count()).toBe(1);
     expect(await page.locator('details.thinking', { hasText: 'Coordinator plans the next step.' }).count()).toBe(4);
+    const callWriter = page.locator('.activity li.tool details').filter({ has: page.locator('summary', { hasText: 'coordinator → callWriter' }) });
+    expect(await callWriter.locator('.tool-output').textContent()).toContain('WRITER REPORT: CV written');
+    expect(await callWriter.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(false);
     expect(await page.locator('#session-list li.active').textContent()).toContain('Hi, I am Ada');
 
     await page.click('#new-session');

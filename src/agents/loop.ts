@@ -34,8 +34,6 @@ export interface AgentResult {
   completed: boolean;
 }
 
-const PREVIEW_CHARS = 300;
-
 export function buildSystemPrompt(spec: AgentSpec, skills: Skill[], systemInfo: string): string {
   return [spec.instructions, renderSkills(skills), systemInfo].filter(Boolean).join('\n\n');
 }
@@ -97,7 +95,7 @@ export async function runAgent(spec: AgentSpec, history: ChatMessage[], opts: Ru
       try {
         if (signal?.aborted) throw new AbortError();
         const outcome = await executeToolCall(spec.tools, call, { agent: spec.name, depth, emit, signal });
-        emit({ type: 'tool_result', ...base, name: outcome.name, ok: outcome.ok, preview: outcome.output.slice(0, PREVIEW_CHARS) });
+        emit({ type: 'tool_result', ...base, name: outcome.name, ok: outcome.ok, output: outcome.output });
         await append({ role: 'tool', tool_name: outcome.name, content: outcome.output });
       } catch (err) {
         // Keep the history well-formed (every tool call gets a result) before propagating the stop.

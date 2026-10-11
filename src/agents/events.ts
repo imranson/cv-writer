@@ -9,7 +9,7 @@ export type AgentEvent =
   | { type: 'delta'; agent: AgentName; depth: number; content?: string; thinking?: string }
   | { type: 'message'; agent: AgentName; depth: number; content: string }
   | { type: 'tool_call'; agent: AgentName; depth: number; name: string; args: unknown }
-  | { type: 'tool_result'; agent: AgentName; depth: number; name: string; ok: boolean; preview: string }
+  | { type: 'tool_result'; agent: AgentName; depth: number; name: string; ok: boolean; output: string }
   | { type: 'context'; agent: AgentName; depth: number; usedTokens: number; contextWindow: number }
   | { type: 'data_changed'; kind: DataKind; id: string };
 

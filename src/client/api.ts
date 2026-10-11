@@ -50,7 +50,7 @@ export type ServerEvent =
   | { type: 'delta'; agent: string; depth: number; content?: string; thinking?: string }
   | { type: 'message'; agent: string; depth: number; content: string }
   | { type: 'tool_call'; agent: string; depth: number; name: string; args: unknown }
-  | { type: 'tool_result'; agent: string; depth: number; name: string; ok: boolean; preview: string }
+  | { type: 'tool_result'; agent: string; depth: number; name: string; ok: boolean; output: string }
   | { type: 'agent_start'; agent: string; depth: number; task: string }
   | { type: 'agent_end'; agent: string; depth: number; ok: boolean }
   | { type: 'context'; agent: string; depth: number; usedTokens: number; contextWindow: number }
