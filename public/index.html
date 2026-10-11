@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CV Writer</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CV Writer</div>
+    <div class="model" id="model-name"></div>
+    <div class="context" id="context-indicator" title="Coordinator context window usage">
+      <span class="context-label">Context</span>
+      <div class="context-bar"><div class="context-fill" id="context-fill"></div></div>
+      <span class="context-text" id="context-text">–</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sessions">
+      <button id="new-session" class="primary">+ New chat</button>
+      <ul id="session-list"></ul>
+    </aside>
+
+    <main class="chat">
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <form id="composer" class="composer">
+        <textarea id="input" rows="3" placeholder="Tell me about yourself, or paste a job description… (Enter to send, Shift+Enter for a new line)"></textarea>
+        <div class="composer-actions">
+          <button type="submit" id="send" class="primary">Send</button>
+          <button type="button" id="stop" hidden>Stop</button>
+        </div>
+      </form>
+    </main>
+
+    <section class="workspace">
+      <div class="ws-toolbar">
+        <label>Job <select id="job-select"><option value="">No jobs yet</option></select></label>
+        <a id="pdf-link" class="button" href="#" aria-disabled="true">Download PDF</a>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="preview" class="active">Preview</button>
+        <button role="tab" data-tab="css">CSS</button>
+        <button role="tab" data-tab="preferences">Preferences</button>
+        <button role="tab" data-tab="job">Job</button>
+        <button role="tab" data-tab="profile">Profile</button>
+      </nav>
+      <div class="panels">
+        <div class="panel active" data-panel="preview">
+          <iframe id="cv-frame" title="CV preview" sandbox=""></iframe>
+          <p id="cv-empty" class="empty">No CV yet. Chat with the coordinator to create one.</p>
+        </div>
+        <div class="panel" data-panel="css">
+          <p class="hint">Raw CSS for this CV. Used for the preview and the PDF.</p>
+          <textarea id="css-editor" spellcheck="false"></textarea>
+          <div class="panel-actions">
+            <button id="css-save" class="primary">Save CSS</button>
+            <button id="css-revert">Revert</button>
+            <span id="css-status" class="status"></span>
+          </div>
+        </div>
+        <div class="panel" data-panel="preferences"><pre id="preferences-view" class="json"></pre></div>
+        <div class="panel" data-panel="job"><pre id="job-view" class="json"></pre></div>
+        <div class="panel" data-panel="profile"><pre id="profile-view" class="json"></pre></div>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
