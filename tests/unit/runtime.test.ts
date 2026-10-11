@@ -22,7 +22,7 @@ describe('AgentRuntime tool sets (as specified)', () => {
     const rt = makeRuntime(new ScriptedLLM({}), ws);
     const names = (agent: 'coordinator' | 'writer' | 'critic') => rt.tools(agent).map((t) => t.name).sort();
     expect(names('coordinator')).toEqual(
-      ['readProfile', 'writeProfile', 'editProfile', 'readJob', 'writeJob', 'editJob', 'searchJobs', 'callWriter', 'callCritic', ...COMMON].sort(),
+      ['readProfile', 'writeProfile', 'editProfile', 'readJob', 'writeJob', 'editJob', 'searchJobs', 'readCV', 'searchCVs', 'callWriter', 'callCritic', ...COMMON].sort(),
     );
     expect(names('writer')).toEqual(['readCV', 'writeCV', 'editCV', 'searchCVs', 'readProfile', 'callCritic', ...COMMON].sort());
     expect(names('critic')).toEqual(['readCV', 'readJob', 'searchCVs', 'searchJobs', ...COMMON].sort());

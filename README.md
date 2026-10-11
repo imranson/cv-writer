@@ -29,7 +29,7 @@ By default the app talks to the local Ollama daemon (`OLLAMA_HOST=http://127.0.0
 
 | Agent | Talks to user | Tools |
 | --- | --- | --- |
-| Coordinator | yes (only one) | readProfile, writeProfile, editProfile, readJob, writeJob, editJob, searchJobs, callWriter, callCritic |
+| Coordinator | yes (only one) | readProfile, writeProfile, editProfile, readJob, writeJob, editJob, searchJobs, readCV, searchCVs, callWriter, callCritic |
 | Writer | no, reports to coordinator | readCV, writeCV, editCV (HTML, CSS and per-CV preferences), searchCVs, readProfile, callCritic |
 | Critic | no, reports to its caller | readCV, readJob, searchCVs, searchJobs |
 

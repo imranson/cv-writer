@@ -57,6 +57,8 @@ export class AgentRuntime {
         job.writeJob,
         job.editJob,
         job.searchJobs,
+        cv.readCV,
+        cv.searchCVs,
         callWriter,
         callCritic,
         ...common,
