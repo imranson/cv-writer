@@ -94,13 +94,13 @@ export class ChatService {
       throw new SessionNotFoundError(`Session "${sessionId}" not found`);
     }
     try {
-      // Reasoning from earlier turns is not needed again; dropping it saves context.
-      session.messages = session.messages.map(({ thinking: _t, ...m }) => m);
       if (session.messages.length === 0) session.title = titleFrom(text);
       session.messages.push({ role: 'user', content: text });
       await this.save(session);
 
-      const result = await this.runtime.run('coordinator', session.messages, {
+      // The session keeps all reasoning, but the model doesn't need earlier turns' again; dropping it saves context.
+      const history = session.messages.map(({ thinking: _t, ...m }) => m);
+      const result = await this.runtime.run('coordinator', history, {
         signal: controller.signal,
         emit: (event) => {
           if (event.type === 'context' && event.depth === 0) {
@@ -108,7 +108,10 @@ export class ChatService {
           }
           if (isUserVisible(event)) emit(event);
         },
-        onMessage: () => this.save(session),
+        onMessage: (message) => {
+          session.messages.push(message);
+          return this.save(session);
+        },
       });
       await this.save(session);
       emit({ type: 'done', text: result.text });

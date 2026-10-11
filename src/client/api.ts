@@ -3,6 +3,7 @@ import { readEventStream } from './sse.js';
 export interface Message {
   role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
+  thinking?: string;
   tool_calls?: { function: { name: string; arguments: unknown } }[];
   tool_name?: string;
 }

@@ -60,14 +60,15 @@ describe('ChatService', () => {
     expect(isUserVisible({ type: 'data_changed', kind: 'cv', id: 'x' })).toBe(true);
   });
 
-  it('drops old reasoning from history at the start of a new turn', async () => {
+  it('saves all reasoning in the session but drops earlier turns’ reasoning from the model’s history', async () => {
     const llm = new ScriptedLLM({ coordinator: () => ({ ...say('ok'), thinking: 'secret reasoning' }) });
     const chat = new ChatService(makeRuntime(llm, ws), ws);
     const s = await chat.create();
     await chat.send(s.id, 'one', () => {});
-    expect((await chat.get(s.id))!.messages[1].thinking).toBe('secret reasoning');
     await chat.send(s.id, 'two', () => {});
     expect(JSON.stringify(llm.requests[1].messages)).not.toContain('secret reasoning');
+    const saved = (await chat.get(s.id))!.messages;
+    expect(saved.map((m) => m.thinking)).toEqual([undefined, 'secret reasoning', undefined, 'secret reasoning']);
   });
 
   it('rejects concurrent turns and unknown sessions', async () => {

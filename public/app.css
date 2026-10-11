@@ -83,6 +83,10 @@ button:disabled, .button[aria-disabled="true"] { opacity: 0.5; pointer-events: n
 .activity .fail { color: var(--err); }
 .activity .agent { font-weight: 600; text-transform: capitalize; }
 
+.thinking { align-self: stretch; font-size: 12px; color: var(--muted); border-left: 3px solid var(--accent-soft); padding-left: 8px; }
+.thinking summary { cursor: pointer; font-style: italic; }
+.thinking-text { margin-top: 4px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+
 .composer { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); background: var(--panel); }
 .composer textarea { flex: 1; resize: vertical; font: inherit; padding: 8px; border: 1px solid var(--border); border-radius: 8px; }
 .composer-actions { display: flex; flex-direction: column; gap: 6px; }

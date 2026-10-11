@@ -53,6 +53,10 @@ export class ScriptedLLM implements LLM {
     if (!script) throw new Error(`No script for agent ${request.agent}`);
     if (this.delayMs) await sleep(this.delayMs, request.signal);
     const message = await script(request);
+    for (const chunk of message.thinking?.match(/[\s\S]{1,12}/g) ?? []) {
+      if (request.signal?.aborted) throw new AbortError();
+      onDelta?.({ thinking: chunk });
+    }
     for (const chunk of message.content.match(/[\s\S]{1,12}/g) ?? []) {
       if (request.signal?.aborted) throw new AbortError();
       onDelta?.({ content: chunk });

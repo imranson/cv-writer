@@ -66,6 +66,17 @@ function addBubble(kind: 'user' | 'assistant' | 'error' | 'notice', text: string
   return div;
 }
 
+function addThinking(text: string, open: boolean): HTMLDetailsElement {
+  const details = document.createElement('details');
+  details.className = 'thinking';
+  details.open = open;
+  details.innerHTML = '<summary>Thinking</summary><div class="thinking-text"></div>';
+  details.lastElementChild!.textContent = text;
+  els.messages.append(details);
+  scrollToBottom();
+  return details;
+}
+
 function activityGroup(open: boolean): HTMLUListElement {
   const last = els.messages.lastElementChild;
   if (last instanceof HTMLDetailsElement && last.classList.contains('activity')) return last.querySelector('ul')!;
@@ -99,6 +110,7 @@ function renderHistory(messages: Message[]): void {
   for (const m of messages) {
     if (m.role === 'user') addBubble('user', m.content);
     else if (m.role === 'assistant') {
+      if (m.thinking?.trim()) addThinking(m.thinking, false);
       if (m.content.trim()) addBubble('assistant', m.content);
       for (const call of m.tool_calls ?? []) addActivity(0, `<span class="agent">coordinator</span> → ${esc(call.function.name)}`, false);
     } else if (m.role === 'tool' && m.content.startsWith('Error:')) {
@@ -195,7 +207,15 @@ async function sendMessage(text: string): Promise<void> {
   addBubble('user', text);
   let bubble: HTMLDivElement | null = null;
   let buffer = '';
+  let thought: HTMLDetailsElement | null = null;
+  let thoughtBuffer = '';
   let first = true;
+
+  // Reasoning stays open while it streams and collapses once the model answers or uses a tool.
+  const endThought = () => {
+    if (thought) thought.open = false;
+    thought = null;
+  };
 
   const handle = (event: ServerEvent) => {
     if (first) {
@@ -204,7 +224,17 @@ async function sendMessage(text: string): Promise<void> {
     }
     switch (event.type) {
       case 'delta':
+        if (event.thinking) {
+          if (!thought) {
+            thought = addThinking('', true);
+            thoughtBuffer = '';
+          }
+          thoughtBuffer += event.thinking;
+          thought.lastElementChild!.textContent = thoughtBuffer;
+          scrollToBottom();
+        }
         if (!event.content) return;
+        endThought();
         if (!bubble) {
           bubble = addBubble('assistant', '');
           buffer = '';
@@ -214,10 +244,12 @@ async function sendMessage(text: string): Promise<void> {
         scrollToBottom();
         return;
       case 'message':
+        endThought();
         if (!bubble && event.content.trim()) addBubble('assistant', event.content);
         bubble = null;
         return;
       case 'tool_call':
+        endThought();
         bubble = null; // text after tool use goes in a new bubble
         addActivity(event.depth, `<span class="agent">${esc(event.agent)}</span> → ${esc(event.name)}`, true);
         return;
@@ -253,6 +285,7 @@ async function sendMessage(text: string): Promise<void> {
     addBubble('error', (err as Error).message);
   } finally {
     setRunning(false);
+    endThought();
     els.messages.querySelectorAll('details.activity').forEach((d) => ((d as HTMLDetailsElement).open = false));
     await refreshSessions();
     await refreshWorkspace();

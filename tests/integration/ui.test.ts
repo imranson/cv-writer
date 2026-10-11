@@ -4,7 +4,8 @@ import { serve, type ServerType } from '@hono/node-server';
 import { chromium, type Browser, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildTestApp } from '../support/app.js';
-import { journeyLlm } from '../support/journey.js';
+import { journeyScripts } from '../support/journey.js';
+import { ScriptedLLM } from '../support/scriptedLlm.js';
 
 describe('web UI (real browser, scripted model)', () => {
   let t: Awaited<ReturnType<typeof buildTestApp>>;
@@ -14,7 +15,14 @@ describe('web UI (real browser, scripted model)', () => {
   let base: string;
 
   beforeAll(async () => {
-    const llm = journeyLlm();
+    const llm = new ScriptedLLM(
+      {
+        ...journeyScripts,
+        coordinator: async (req) => ({ ...(await journeyScripts.coordinator(req)), thinking: 'Coordinator plans the next step.' }),
+        writer: async (req) => ({ ...(await journeyScripts.writer(req)), thinking: 'Writer private reasoning.' }),
+      },
+      262_144,
+    );
     llm.delayMs = 30;
     t = await buildTestApp(llm);
     server = serve({ fetch: t.app.fetch, port: 0, hostname: '127.0.0.1' });
@@ -52,6 +60,14 @@ describe('web UI (real browser, scripted model)', () => {
     expect(activity).toContain('critic → readCV');
     expect(activity).toContain('writer → writeCV');
     expect(await page.locator('.bubble.assistant', { hasText: 'WRITER REPORT' }).count()).toBe(0);
+  });
+
+  it('shows the coordinator’s thinking, collapsed once it moves on, but never a subagent’s', async () => {
+    const thoughts = page.locator('details.thinking');
+    expect(await thoughts.count()).toBe(4); // one per coordinator step
+    expect(await thoughts.first().textContent()).toContain('Coordinator plans the next step.');
+    expect(await thoughts.evaluateAll((els) => els.some((el) => (el as HTMLDetailsElement).open))).toBe(false);
+    expect(await page.locator('#messages').textContent()).not.toContain('Writer private reasoning');
   });
 
   it('shows the context window indicator', async () => {
@@ -102,6 +118,7 @@ describe('web UI (real browser, scripted model)', () => {
     await page.reload();
     await page.locator('.bubble.user', { hasText: 'Hi, I am Ada' }).waitFor();
     expect(await page.locator('.bubble.assistant', { hasText: 'ready in the preview panel' }).count()).toBe(1);
+    expect(await page.locator('details.thinking', { hasText: 'Coordinator plans the next step.' }).count()).toBe(4);
     expect(await page.locator('#session-list li.active').textContent()).toContain('Hi, I am Ada');
 
     await page.click('#new-session');
