@@ -1,1 +1,6 @@
 /data/
+/node_modules/
+/public/app.js
+/public/app.js.map
+.env
+.DS_Store

@@ -1,0 +1,33 @@
+{
+  "name": "cv-writer",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end CV writing app: a coordinator agent with writer and critic subagents on Ollama cloud models, Playwright PDF rendering.",
+  "scripts": {
+    "build:web": "tsx scripts/build-web.ts",
+    "start": "npm run build:web && tsx --env-file-if-exists=.env src/server.ts",
+    "dev": "npm run build:web && tsx watch --env-file-if-exists=.env src/server.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "vitest run tests/e2e",
+    "test:live": "LIVE_OLLAMA=1 vitest run tests/live"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.4",
+    "hono": "4.13.13",
+    "nanoid": "3.3.20",
+    "ollama": "0.6.4",
+    "playwright": "1.64.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "esbuild": "0.28.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  }
+}
