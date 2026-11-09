@@ -9,6 +9,13 @@ import { normalizePageSize, PdfRenderer } from '../pdf/render.js';
 import { createApp } from './app.js';
 import { ChatService } from './chat-service.js';
 
+// Load ./.env if present (local dev). Real environment variables win; on Railway there is no file.
+try {
+  process.loadEnvFile();
+} catch (err) {
+  if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+}
+
 const config = loadConfig();
 const db = await createDb({ databaseUrl: config.databaseUrl, pgliteDir: config.pgliteDir });
 const applied = await migrate(db);
