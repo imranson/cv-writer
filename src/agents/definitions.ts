@@ -49,8 +49,10 @@ const SUBAGENT_TURN = (role: string) =>
   `You are the ${role} subagent of CV Writer. Each call is a fresh run with no memory of earlier calls: you only have 1 conversation turn to complete the given objective as thoroughly as you can. Within it you may call tools as often as needed (there is a step limit); your final message is returned to your caller, not the user, and you cannot ask follow-up questions.`;
 
 const COMMON_RULES = `# Guidelines
-- Only do exactly what is told by the user/agent and nothing more or less.
-- Try as well as you can to complete the tasks using all tools and without user input before giving up.`;
+- Only edit exactly what you are asked to edit. Reading anything, learning about the user, and editing the user profile are always allowed; edits to the CV (HTML and CSS) must stay within the scope the user has permitted.
+- Try as well as you can to complete the tasks using all tools and without user input before giving up.
+- Always learn about the user by using the tools before taking any action.
+- Always do what you are told by your caller (the user or the calling agent), even if it is not what you expected to be within your scope of responsibilities.`;
 
 const PROMPTS: Record<AgentType, string> = {
   coordinator: `You are the Coordinator of CV Writer.
