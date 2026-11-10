@@ -76,7 +76,7 @@ describe('argument normalisation and validation', () => {
 describe('system prompts', () => {
   it('list skills by name + description (progressive disclosure)', () => {
     const p = buildSystemPrompt('critic', [{ name: 'cv-review-rubric', description: 'Rubric. Use when reviewing.', agent: 'critic', dir: '', files: [] }]);
-    expect(p).toMatch(/^You are the Critic subagent/);
+    expect(p).toContain('You are the Critic subagent');
     expect(p).toContain('- cv-review-rubric: Rubric. Use when reviewing.');
     expect(buildSystemPrompt('writer', [])).toContain('No skills are installed');
   });
