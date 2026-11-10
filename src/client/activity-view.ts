@@ -60,6 +60,15 @@ function pretty(value: unknown): string {
   return JSON.stringify(value, null, 2);
 }
 
+function isJson(s: string): boolean {
+  try {
+    JSON.parse(s);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function argsPreview(args: unknown): string {
   let obj: unknown = args;
   if (typeof args === 'string') {
@@ -102,7 +111,9 @@ export function renderRun(activity: Activity, run: AgentRun, open: OpenState): H
 
   const meta = h('div.run-details');
   meta.append(
-    details(open, `${run.runId}:task`, false, [run.depth === 0 ? 'User message' : 'Task from caller'], () => [h('pre.task', run.task)], 'mini'),
+    details(open, `${run.runId}:task`, false, [run.depth === 0 ? 'User message' : 'Task from caller'], () => [
+      run.depth === 0 ? h('pre.task', run.task) : h('div.task.md', { html: renderMarkdown(run.task) }),
+    ], 'mini'),
     details(open, `${run.runId}:sys`, false, [`System prompt (${run.systemPrompt.length.toLocaleString()} chars) · tools: ${run.tools.length}`], () => [
       h('pre.sys', run.systemPrompt),
       h('div.tool-list', run.tools.map((t) => h('code', t))),
@@ -163,7 +174,9 @@ function renderToolStep(activity: Activity, run: AgentRun, step: ToolStep, key: 
         h('div.io-label', 'Arguments'),
         h('pre.io', pretty(step.args)),
         h('div.io-label', `Result${step.result ? ` (${step.result.length.toLocaleString()} chars)` : ''}`),
-        h('pre.io', step.result === undefined ? '…' : pretty(step.result)),
+        step.result !== undefined && step.childRunIds.length && !isJson(step.result)
+          ? h('div.io.md', { html: renderMarkdown(step.result) }) // a subagent's report
+          : h('pre.io', step.result === undefined ? '…' : pretty(step.result)),
       ],
     ),
   );

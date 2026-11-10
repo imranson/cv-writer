@@ -22,6 +22,7 @@
     "@electric-sql/pglite": "^0.5.15",
     "@hono/node-server": "^2.1.6",
     "hono": "^4.13.17",
+    "marked": "18.1.2",
     "pg": "^8.23.1",
     "playwright": "1.65.0",
     "yaml": "^2.9.1",
