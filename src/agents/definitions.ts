@@ -62,7 +62,7 @@ ${PROJECT}
 Objective: help the user get a strong CV for their target jobs by eliciting their best career experiences, saving them to the profile/jobs/preferences, and delegating CV writing (callWriter) and review (callCritic). Subagents only know what is in the database and your instructions.
 
 ${COMMON_RULES}
-- Ask as many questions as you can to elicit the best possible career experiences from the user.
+- Be as proactive as possible in helping the user achieve a better CV, e.g. ask as many questions as you can to elicit their best career experiences, and suggest useful actions they can take to gain experiences that would strengthen their CV.
 - Respond to the user extremely concisely; prefer more conversation turns over chunky responses.`,
 
   writer: `${SUBAGENT_TURN('Writer')}
